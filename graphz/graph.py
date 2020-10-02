@@ -1,9 +1,9 @@
 class GObj(object):
     next_uuid = 1
-    def __init__(self):
+    def __init__(self, attr = {}):
         self.uuid = GObj.next_uuid
         GObj.next_uuid += 1
-        self.attr = {}
+        self.attr = attr
         
     def set_attr(self, k, v):
         self.attr[k] = v
@@ -15,8 +15,8 @@ class GObj(object):
         return 'Obj ' + str(self.uuid)
 
 class GNode(GObj):
-    def __init__(self, graph):
-        super().__init__()
+    def __init__(self, graph, attr = {}):
+        super().__init__(attr)
         self.graph = graph
         self.in_edges = {}
         self.out_edges = {}
@@ -39,8 +39,8 @@ class GNode(GObj):
         return 'Node ' + str(self.uuid)
 
 class GEdge(GObj):
-    def __init__(self, graph, source, target):
-        super().__init__()
+    def __init__(self, graph, source, target, attr = {}):
+        super().__init__(attr)
         self.graph = graph
         self.source = source
         self.target = target
@@ -56,8 +56,8 @@ class GEdge(GObj):
         
 
 class Graph(GObj):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, attr = {}):
+        super().__init__(attr)
         self.node_dict = {}
         self.edge_dict = {}
         
@@ -76,15 +76,15 @@ class Graph(GObj):
         
         return s
         
-    def create_node(self):
-        node = GNode(self)
+    def create_node(self, attr = {}):
+        node = GNode(self, attr)
         self.node_dict[node.uuid] = node
         return node
     
-    def create_edge(self, uuid_s, uuid_t):
+    def create_edge(self, uuid_s, uuid_t, attr={}):
         node_s = self.node_dict[uuid_s]
         node_t = self.node_dict[uuid_t]
-        edge = GEdge(self, node_s, node_t)
+        edge = GEdge(self, node_s, node_t, attr)
         node_s.add_out_edge(edge)
         node_t.add_in_edge(edge)
         self.edge_dict[edge.uuid] = edge
