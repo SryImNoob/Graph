@@ -1,8 +1,11 @@
 class GObj(object):
     next_uuid = 1
-    def __init__(self, attr = {}):
-        self.uuid = GObj.next_uuid
-        GObj.next_uuid += 1
+    def __init__(self, uuid = None, attr = {}):
+        if uuid == None:
+            uuid = GObj.create_uuid()
+        elif uuid >= GObj.next_uuid:
+            GObj.next_uuid = uuid + 1
+        self.uuid = uuid
         self.attr = attr
         
     def set_attr(self, k, v):
@@ -11,12 +14,18 @@ class GObj(object):
     def get_attr(self, k):
         return self.attr[k]
 
+    @classmethod
+    def create_uuid(cls):
+        cur_uuid = cls.next_uuid
+        cls.next_uuid += 1
+        return cur_uuid
+
     def __str__(self):
         return 'Obj ' + str(self.uuid)
 
 class GNode(GObj):
-    def __init__(self, graph, attr = {}):
-        super().__init__(attr)
+    def __init__(self, graph, uuid = None, attr = {}):
+        super().__init__(uuid, attr)
         self.graph = graph
         self.in_edges = {}
         self.out_edges = {}
@@ -39,8 +48,8 @@ class GNode(GObj):
         return 'Node ' + str(self.uuid)
 
 class GEdge(GObj):
-    def __init__(self, graph, source, target, attr = {}):
-        super().__init__(attr)
+    def __init__(self, graph, source, target, uuid = None, attr = {}):
+        super().__init__(uuid, attr)
         self.graph = graph
         self.source = source
         self.target = target
@@ -56,8 +65,8 @@ class GEdge(GObj):
         
 
 class Graph(GObj):
-    def __init__(self, attr = {}):
-        super().__init__(attr)
+    def __init__(self, uuid = None, attr = {}):
+        super().__init__(uuid, attr)
         self.node_dict = {}
         self.edge_dict = {}
         
@@ -76,15 +85,15 @@ class Graph(GObj):
         
         return s
         
-    def create_node(self, attr = {}):
-        node = GNode(self, attr)
+    def create_node(self, uuid = None, attr = {}):
+        node = GNode(self, uuid, attr)
         self.node_dict[node.uuid] = node
         return node
     
-    def create_edge(self, uuid_s, uuid_t, attr={}):
+    def create_edge(self, uuid_s, uuid_t, uuid = None, attr={}):
         node_s = self.node_dict[uuid_s]
         node_t = self.node_dict[uuid_t]
-        edge = GEdge(self, node_s, node_t, attr)
+        edge = GEdge(self, node_s, node_t, uuid, attr)
         node_s.add_out_edge(edge)
         node_t.add_in_edge(edge)
         self.edge_dict[edge.uuid] = edge
